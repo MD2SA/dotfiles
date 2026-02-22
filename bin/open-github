@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# -----------------------------
+# Opens the GitHub page for the current repository or a specified one
+# Usage: ./open-github.sh [-u username] [-r repository]
+# -----------------------------
+
+set -euo pipefail
+
+# FUNCTIONS
+print_usage() {
+    cat <<EOF
+Usage: $0 [-u username] [-r repository] [-h]
+
+Options:
+  -u username   Specify the GitHub username (required if not set in git config)
+  -r repository Specify the GitHub repository name (optional)
+  -h            Display this help message and exit
+
+Description:
+  Opens a GitHub page in your default browser. If no repository is given,
+  opens the user's profile. If run inside a Git repo with a remote named "origin"
+  and no arguments, opens the origin URL.
+EOF
+}
+
+
+open_browser() {
+    local url="$1"
+
+    if command -v omarchy-launch-browser >/dev/null 2>&1; then
+        omarchy-launch-browser "$url"
+    elif command -v open >/dev/null 2>&1; then
+        open "$url"
+    elif command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "$url"
+    else
+        echo "No browser command found. URL: $url"
+        exit 1
+    fi
+}
+
+# MAIN SCRIPT
+
+# try origin if no arguments are passed
+if [[ $# -eq 0 ]]; then
+    if URL=$(git remote get-url origin 2>/dev/null); then
+        open_browser "$URL"
+        exit 0
+    fi
+fi
+
+USERNAME=""
+REPO=""
+
+while getopts "u:r:h" opt; do
+    case "$opt" in
+        u)
+            USERNAME="$OPTARG"
+            ;;
+        r)
+            REPO="$OPTARG"
+            ;;
+        h)
+            print_usage
+            exit 0
+            ;;
+        *)
+            echo "Invalid option. Use -h for help."
+            exit 1
+            ;;
+    esac
+done
+
+if [[ -z ${USERNAME:-} ]]; then
+    USERNAME=$(git config user.name 2>/dev/null || true)
+    if [[ -z $USERNAME ]]; then
+        echo "Username not found. Please provide -u or configure git user.name"
+        exit 1
+    fi
+fi
+
+# Construct GitHub URL
+if [[ -z $REPO ]]; then
+    GITHUB_URL="https://github.com/$USERNAME"
+else
+    GITHUB_URL="https://github.com/$USERNAME/$REPO"
+fi
+
+open_browser "$GITHUB_URL"

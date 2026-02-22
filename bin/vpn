@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# HTML_ENCODED=$(sudo openconnect --protocol=gp --user=mssae@iscte-iul.pt vpn.iscte-iul.pt | tail -n 1 | sed 's/^.*base64,//')
+#
+# HTML=$(echo $HTML_ENCODED | base64 --decode)
+#
+# echo $HTML > saml.html
+#
+# xdg-open saml.html
+
+gnome-boxes --open-uuid=e61ed264-9ae1-47b2-91e7-cf51b0bf0238 &
