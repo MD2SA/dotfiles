@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/eduroam.conf -B
+
+iw wlan0 link

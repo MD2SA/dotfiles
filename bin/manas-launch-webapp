@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+browser=$(xdg-settings get default-web-browser)
+
+# Must have profile called "compact"
+if [[ "$browser" == zen.desktop ]] || [[ "$browser" == *"zen"* ]]; then
+    exec setsid uwsm-app -- /usr/bin/zen-browser --new-window -P compact "${@}"
+    # Se quiser kiosk + compact direto nos links também, troque a linha acima por:
+    # exec setsid uwsm-app -- /opt/zen/zen -P compact --kiosk "${@}"
+fi
+
+# Para todos os outros navegadores (Chrome, Brave, Edge, etc.) → comportamento original
+case $browser in
+    google-chrome* | brave-browser* | microsoft-edge* | opera* | vivaldi* | helium*)
+        ;;
+    *) browser="chromium.desktop" ;;
+esac
+
+exec setsid uwsm-app -- $(sed -n 's/^Exec=\([^ ]*\).*/\1/p' \
+    {~/.local,~/.nix-profile,/usr}/share/applications/$browser 2>/dev/null | head -1) \
+    --app="$1" "${@:2}"
