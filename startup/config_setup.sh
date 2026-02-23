@@ -4,7 +4,7 @@ set -e
 
 DOTDIR="$HOME/.config/dotfiles"
 
-rm -rf "$DOTDIR"
+# rm -rf "$DOTDIR"
 mkdir -p "$DOTDIR"
 
 # User does not have git credentials stored yet
