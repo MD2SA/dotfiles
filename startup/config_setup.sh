@@ -31,7 +31,9 @@ for file in "$DOTDIR"/*; do
 
     [[ "$name" == .git* || "$name" == startup ]] && continue
 
-    if [[ "$name" == .bash* ]]; then
+    if [[ "$name" == "bin" ]]; then
+        target="$HOME/.local/bin"
+    elif [[ "$name" == .bash* ]]; then
         target="$HOME/$name"
     else
         target="$HOME/.config/$name"
@@ -45,9 +47,12 @@ for file in "$DOTDIR"/*; do
 done
 
 
-# Note to future: make nvim a submodule of dotfiles
-rm -rf "$HOME/.config/nvim"
-git clone "https://github.com/MD2SA/nvim" "$HOME/.config/nvim"
+NVIMDIR="$HOME/.config/nvim"
+if [ ${#NVIMDIR[@]} -eq 0 ]; then
+    git clone "https://github.com/MD2SA/nvim" "$NVIMDIR"
+else
+    git -C "$NVIMDIR" pull
+fi
 
 shopt -u dotglob nullglob
 
