@@ -21,6 +21,7 @@ DEFAULT_APPS=(
     "localsend"
     # "obs-studio"
     "obsidian"
+    "chromium"
     "omarchy-chromium"
     "signal-desktop"
     "spotify"
