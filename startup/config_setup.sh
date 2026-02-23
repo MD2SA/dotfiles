@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 set -e
+shopt -s dotglob nullglob
 
+
+mkdir -p "$HOME/.config"
 DOTDIR="$HOME/.config/dotfiles"
-
-# rm -rf "$DOTDIR"
-mkdir -p "$DOTDIR"
 
 # User does not have git credentials stored yet
 if [[ ! -f "$HOME/.git-credentials" && ! -f "$HOME/.config/git/credentials" ]]; then
@@ -19,11 +19,12 @@ if [[ ! -f "$HOME/.git-credentials" && ! -f "$HOME/.config/git/credentials" ]]; 
 	fi
 fi
 
-git clone "https://github.com/MD2SA/dotfiles" "$DOTDIR"
-
-mkdir -p "$HOME/.config"
-
-shopt -s dotglob nullglob
+dotfiles=("$DOTDIR"/*)
+if [ ${#dotfiles[@]} -eq 0 ]; then
+    git clone "https://github.com/MD2SA/dotfiles" "$DOTDIR"
+else
+    git -C "$DOTDIR" pull
+fi
 
 for file in "$DOTDIR"/*; do
     name="$(basename "$file")"
@@ -43,14 +44,12 @@ for file in "$DOTDIR"/*; do
     ln -sf "$file" "$target"
 done
 
-shopt -u dotglob nullglob
 
 # Note to future: make nvim a submodule of dotfiles
 rm -rf "$HOME/.config/nvim"
 git clone "https://github.com/MD2SA/nvim" "$HOME/.config/nvim"
 
-
-
+shopt -u dotglob nullglob
 
 # NEXT STEPS
 #
