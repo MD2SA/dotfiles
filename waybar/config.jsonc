@@ -1,20 +1,22 @@
 {
   "reload_style_on_change": true,
   "layer": "top",
-  "position": "top",
+  "position": "right",
   "spacing": 4,
-  "height": 26,
-  "modules-left": ["custom/omarchy", "hyprland/workspaces"],
-  "modules-center": ["clock", "custom/update", "custom/voxtype", "custom/screenrecording-indicator"],
+  "modules-left": [ "custom/omarchy", "hyprland/workspaces"],
+  "modules-center": ["custom/update", "custom/screenrecording-indicator"],
   "modules-right": [
     // "group/tray-expander",
-    "bluetooth",
+    "clock",
+    "custom/h-sep",
+    "battery",
     "network",
     "pulseaudio",
-    "battery"
+    "bluetooth"
     // "cpu",
   ],
   "hyprland/workspaces": {
+    "reverse-direction": true,
     "on-click": "activate",
     "format": "{icon}",
     "format-icons": {
@@ -53,17 +55,13 @@
     "signal": 7,
     "interval": 3600
   },
-
-  "cpu": {
-    "interval": 5,
-    "format": "󰍛",
-    "on-click": "omarchy-launch-or-focus-tui btop"
-  },
   "clock": {
-    "format": "{:L%A %H:%M}",
-    "format-alt": "{:L%d %B %Y}",
-    "tooltip": false,
+    "format": "{:%H\n%M}",
+    "tooltip-format": "{:L%d %B %Y}",
     "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select"
+  },
+  "custom/h-sep": {
+    "format": "————",
   },
   "network": {
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
@@ -135,19 +133,6 @@
     "exec": "$OMARCHY_PATH/default/waybar/indicators/screen-recording.sh",
     "signal": 8,
     "return-type": "json"
-  },
-  "custom/voxtype": {
-    "exec": "omarchy-voxtype-status",
-    "return-type": "json",
-    "format": "{icon}",
-    "format-icons": {
-      "idle": "",
-      "recording": "󰍬",
-      "transcribing": "󰔟"
-    },
-    "tooltip": true,
-    "on-click-right": "omarchy-voxtype-config",
-    "on-click": "omarchy-voxtype-model"
   },
   "tray": {
     "icon-size": 12,
