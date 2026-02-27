@@ -18,5 +18,4 @@ bind -x '"\C-@f": tmux-sessionizer'
 alias clip="wl-copy"
 alias vim="nvim"
 alias ld="lazydocker"
-alias mongoup="docker compose -f /home/manas/Documents/iscte/pisid/mongo/docker-compose.yml up"
-alias mongodown="docker compose -f /home/manas/Documents/iscte/pisid/mongo/docker-compose.yml down"
+alias mysql-cloud='docker exec -it mysql-cloud bash -c "mysql --user=aluno --password=aluno --host=194.210.86.10"'
