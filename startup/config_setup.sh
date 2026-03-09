@@ -7,6 +7,13 @@ shopt -s dotglob nullglob
 mkdir -p "$HOME/.config"
 DOTDIR="$HOME/.config/dotfiles"
 
+IGNORE_DIRS=(
+    ".git"
+    ".gitignore"
+    "startup"
+    "plymouth-themes"
+)
+
 # User does not have git credentials stored yet
 if [[ ! -f "$HOME/.git-credentials" && ! -f "$HOME/.config/git/credentials" ]]; then
     git config --global credential.helper store
@@ -29,7 +36,15 @@ fi
 for file in "$DOTDIR"/*; do
     name="$(basename "$file")"
 
-    [[ "$name" == .git* || "$name" == startup ]] && continue
+    # skip ignore dirs/files
+    skip=false
+    for ignored in "${IGNORE_DIRS[@]}"; do
+        if [[ "$name" == "$ignored" ]]; then
+            skip=true
+            break
+        fi
+    done
+    $skip && continue
 
     if [[ "$name" == "bin" ]]; then
         target="$HOME/.local/bin"
