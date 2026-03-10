@@ -5,7 +5,6 @@
 set -euo pipefail
 
 # -- Constants ----------------------------------------------------------------
-HOME=/tmp/tmp-home
 SSH_DIR="$HOME/.ssh"
 CONFIG_FILE="$SSH_DIR/config"
 
@@ -31,7 +30,7 @@ generate_ssh_key() {
     local key_file="$SSH_DIR/id_ed25519_${profile}"
 
     if [[ ! -f "$key_file" ]]; then
-        ssh-keygen -t ed25519 -C "$email" -f "$key_file"
+        ssh-keygen -t ed25519 -C "$email" -f "$key_file" >&2
         chmod 600 "$key_file"
         echo "Generated new key for profile '$profile'." >&2
     else
@@ -42,33 +41,52 @@ generate_ssh_key() {
 }
 
 # Appends a Host block to the SSH config file if one doesn't already exist.
+# If is_default=true, also adds a Host github.com block using the same key,
+# so that plain `git@github.com` works with this profile's key.
 add_host_to_config() {
     local profile="$1"
     local key_file="$2"
+    local is_default="${3:-false}"
 
     if grep -qxF "Host $profile" "$CONFIG_FILE"; then
         echo "Config already contains profile '$profile', skipping." >&2
-        return
-    fi
-
-    cat >> "$CONFIG_FILE" <<EOF
+    else
+        cat >> "$CONFIG_FILE" <<EOF
 
 Host $profile
     HostName github.com
     User git
     IdentityFile $key_file
 EOF
-    echo "Added host '$profile' to SSH config." >&2
+        echo "Added host '$profile' to SSH config." >&2
+    fi
+
+    if [[ "$is_default" == "true" ]]; then
+        if grep -qxF "Host github.com" "$CONFIG_FILE"; then
+            echo "Config already contains 'github.com', skipping." >&2
+        else
+            cat >> "$CONFIG_FILE" <<EOF
+
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile $key_file
+EOF
+            echo "Added 'github.com' → '$profile' key to SSH config." >&2
+        fi
+    fi
+
 }
 
 # Creates a key and config entry for a single profile.
 setup_profile() {
     local profile="$1"
     local email="$2"
+    local is_default="${3:-false}"
     local key_file
 
     key_file=$(generate_ssh_key "$profile" "$email")
-    add_host_to_config "$profile" "$key_file"
+    add_host_to_config "$profile" "$key_file" "$is_default"
 }
 
 # -- Main ----------------------------------------------------------------------
@@ -78,6 +96,7 @@ echo "════════════════════════�
 echo "  GitHub SSH Setup"
 echo "═══════════════════════════════════════════════════════════════"
 
+first=true
 for entry in "${PROFILES[@]}"; do
     if [[ "$entry" != *:* ]]; then
         echo "Warning: skipping malformed profile entry '$entry' (expected 'name:email')" >&2
@@ -86,7 +105,13 @@ for entry in "${PROFILES[@]}"; do
 
     name="${entry%%:*}"
     email="${entry##*:}"
-    setup_profile "$name" "$email"
+    if [[ "$first" == "true" ]]; then
+            setup_profile "$name" "$email" "true"
+            first=false
+    else
+        setup_profile "$name" "$email"
+    fi
+
 done
 
 # -- Post-setup guidance -------------------------------------------------------
