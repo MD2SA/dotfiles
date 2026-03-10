@@ -3,6 +3,8 @@
 # System wide alias
 sudo ln -sf $(which nvim) /usr/bin/vim
 
+echo "preparing ssh profiles"
+source ./ssh_setup.sh
 echo "preparing configs"
 source ./config_setup.sh
 echo "removing pkgs"

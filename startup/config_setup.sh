@@ -14,23 +14,13 @@ IGNORE_DIRS=(
     "plymouth-themes"
 )
 
-# User does not have git credentials stored yet
-if [[ ! -f "$HOME/.git-credentials" && ! -f "$HOME/.config/git/credentials" ]]; then
-    git config --global credential.helper store
-
-	# Opening tokens page for auth
-	if command -v xdg-open >/dev/null 2>&1; then
-		xdg-open "https://github.com/settings/tokens" >/dev/null 2>&1 &
-	elif command -v open >/dev/null 2>&1; then
-		open "https://github.com/settings/tokens" >/dev/null 2>&1 &
-	fi
-fi
-
 dotfiles=("$DOTDIR"/*)
 if [ ${#dotfiles[@]} -eq 0 ]; then
+    # if ssh fails try https
+    git clone "git@github.com/MD2SA/dotfiles" "$DOTDIR" || \
     git clone "https://github.com/MD2SA/dotfiles" "$DOTDIR"
 else
-    git -C "$DOTDIR" pull
+    git -C "$DOTDIR" pull --rebase
 fi
 
 for file in "$DOTDIR"/*; do
