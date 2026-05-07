@@ -54,10 +54,11 @@ application/x-extension-xht=zen.desktop
 x-scheme-handler/aether=aether-protocol-handler.desktop
 x-scheme-handler/discord-831593107883032657=discord-831593107883032657.desktop
 inode/directory=org.gnome.Nautilus.desktop
+x-scheme-handler/postman=Postman.desktop
+x-scheme-handler/jetbrains=jetbrainsd.desktop
 
 [Added Associations]
+image/png=imv.desktop;
 x-scheme-handler/http=zen.desktop;
 x-scheme-handler/https=zen.desktop;
-text/html=zen.desktop;
 x-scheme-handler/chrome=zen.desktop;
-image/png=imv.desktop;
