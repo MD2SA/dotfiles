@@ -6,6 +6,7 @@
 source ~/.local/share/omarchy/default/bash/rc
 
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/share/npm/bin:$PATH"
 
 # XDG configs
 export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
@@ -32,3 +33,18 @@ alias mazeup="docker compose -f /home/manas/Documents/iscte/pisid/mazerun/docker
 alias mazed="docker compose -f /home/manas/Documents/iscte/pisid/mazerun/docker-compose.yml down"
 alias mazerun="wine /home/manas/Documents/iscte/pisid/mazerun/server/mazerun.exe 25 --flagMessage 1 --delay 2 --broker broker.hivemq.com --portbroker 1883"
 ##
+
+
+# pnpm
+export PNPM_HOME="/home/manas/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+# Add JBang to environment
+alias j!=jbang
+export PATH="$HOME/.jbang/bin:$PATH"
+
+alias nh='HISTFILE=/dev/null'
