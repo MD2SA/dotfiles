@@ -15,7 +15,7 @@ IGNORE_DIRS=(
 )
 
 dotfiles=("$DOTDIR"/*)
-if [ ${#dotfiles[@]} -eq 0 ]; then
+if [ ! -d "$DOTDIR/.git" ]; then
     # if ssh fails try https
     git clone "git@github.com/MD2SA/dotfiles" "$DOTDIR" || \
     git clone "https://github.com/MD2SA/dotfiles" "$DOTDIR"
@@ -53,7 +53,7 @@ done
 
 
 NVIMDIR="$HOME/.config/nvim"
-if [ ${#NVIMDIR[@]} -eq 0 ]; then
+if [ ! -d "$NVIMDIR" ]; then
     git clone "https://github.com/MD2SA/nvim" "$NVIMDIR"
 else
     git -C "$NVIMDIR" pull
