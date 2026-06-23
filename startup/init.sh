@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+set -e
+
 # System wide alias
-sudo ln -sf $(which nvim) /usr/bin/vim
+sudo ln -sf "$(which nvim)" /usr/bin/vim
 
 echo "preparing ssh profiles"
 source ./ssh_setup.sh
