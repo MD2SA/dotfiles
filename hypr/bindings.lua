@@ -39,6 +39,7 @@ hl.unbind("SUPER + CTRL + SHIFT + code:20")
 hl.unbind("SUPER + CTRL + SHIFT + code:21")
 
 -- Unbind preinstalled app defaults (kept as webapps below)
+hl.unbind("SUPER + SHIFT + C")
 hl.unbind("SUPER + SHIFT + D")
 hl.unbind("SUPER + SHIFT + E")
 hl.unbind("SUPER + SHIFT + W")
@@ -49,10 +50,8 @@ hl.unbind("SUPER + SHIFT + S")
 -- ============================================================
 
 o.bind("SUPER + ALT + RETURN", "Tmux", "uwsm-app -- xdg-terminal-exec --dir=\"$(omarchy-cmd-terminal-cwd)\" tmux new")
-o.bind("SUPER + SHIFT + F", "File manager", "uwsm-app -- nautilus --new-window")
-o.bind("SUPER + ALT + SHIFT + F", "File manager (cwd)",
-    "uwsm-app -- nautilus --new-window \"$(omarchy-cmd-terminal-cwd)\"")
 o.bind("SUPER + SHIFT + S", "Screenshot", "omarchy-capture-screenshot")
+o.bind("SUPER + SHIFT + C", "Calendar", "omarchy-shell shell toggle omarchy.clock")
 
 -- Web apps
 o.bind("SUPER + SHIFT + W", "WhatsApp", "omarchy-launch-webapp https://web.whatsapp.com")
