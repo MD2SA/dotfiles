@@ -1,0 +1,109 @@
+# Omarchy shell surfaces. Colors derive from colors.toml; sizes and the
+# typographic scale come from the keys below. Themes can ship
+# themes/<name>/shell.toml to replace this generated file.
+
+[bar]
+# Alpha companions (where present) range from 0 (invisible) to 1 (opaque).
+background       = "#0d0d0f"
+background-alpha = 0.0
+text             = "#cdd6f4"
+# Modules calling attention to themselves (recording, voxtype, alerts, updates)
+active           = "#f38ba8"
+# Cross-axis size at font base-size 12. size-horizontal is the height of
+# top/bottom bars; size-vertical is the width of left/right bars. With
+# scale-with-font enabled, these grow/shrink with [font] base-size.
+scale-with-font  = true
+size-horizontal  = 26
+size-vertical    = 28
+
+[hyprland]
+# Shared Hyprland-derived border tokens. Surface sections reference these so
+# lock, notifications, popups, and menu-style cards stay aligned with the
+# current Hyprland active-border gradient.
+active-border            = "#e0dcd0"
+active-border-foreground = "#cdd6f4"
+
+[controls]
+# Shared state tokens for interactive control chrome (buttons, dropdowns,
+# tab strips, etc).
+
+# Normal: idle control chrome. Border widths accept one CSS-style scalar/list:
+# N, "Y X", "T X B", or "T R B L". Per-side keys like
+# normal-border-width-left override the list. Each *-border accepts either a
+# solid color or a Hyprland-style gradient, e.g. "rgba(...) rgba(...) 45deg".
+normal-color        = "#cdd6f4"
+normal-fill-alpha   = 0.04
+normal-border       = "#cdd6f4"
+normal-border-width = 1
+normal-border-alpha = 0.4
+
+# Hover-cursor: mouse hover and the panel keyboard cursor.
+hover-cursor-color        = "#cdd6f4"
+hover-cursor-fill-alpha   = 0.08
+hover-cursor-border       = "#cdd6f4"
+hover-cursor-border-width = 1
+hover-cursor-border-alpha = 0.25
+
+# Focus: Qt activeFocus. Mirror the hover-cursor values by default so
+# mouse hover, keyboard cursor, and tab focus all read as the same state
+# — themes that want focus to stand out override these four lines.
+focus-color        = "#cdd6f4"
+focus-fill-alpha   = 0.08
+focus-border       = "#cdd6f4"
+focus-border-width = 1
+focus-border-alpha = 0.25
+
+# Pressed: active mouse button or keyboard activation.
+pressed-color        = "#cdd6f4"
+pressed-fill-alpha   = 0.12
+pressed-border       = "#cdd6f4"
+pressed-border-width = 1
+pressed-border-alpha = 0.25
+
+# Disabled: inactive or unavailable controls.
+disabled-color        = "#3a3b3e"
+disabled-fill-alpha   = 0.04
+disabled-border       = "#3a3b3e"
+disabled-border-width = 1
+disabled-border-alpha = 0.25
+
+[font]
+# Monospace font family used across shell surfaces. The family name is
+# resolved by Qt's font matching — use the family, not a file path.
+family = "JetBrainsMono Nerd Font"
+
+# Base size in pixels. All shell surfaces scale from this value.
+# The typographic scale below multiplies this to produce heading sizes.
+base-size = 12
+
+# Typographic scale factors relative to base-size. Each step is multiplied
+# by the previous, so scale-step-2 = base-size * scale-step-1, etc.
+scale-step-1 = 1.0
+scale-step-2 = 1.2
+scale-step-3 = 1.44
+scale-step-4 = 1.728
+
+[notifications]
+# Notification popup styling
+background       = "#0d0d0f"
+background-alpha = 0.95
+text             = "#cdd6f4"
+border           = "#e0dcd0"
+border-width     = 1
+border-radius    = 12
+
+[menu]
+# Menu popup styling
+background       = "#0d0d0f"
+background-alpha = 0.95
+text             = "#cdd6f4"
+border           = "#e0dcd0"
+border-width     = 1
+border-radius    = 12
+
+[workspaces]
+# Workspace indicator styling
+active-color     = "#e0dcd0"
+inactive-color   = "#3a3b3e"
+urgent-color     = "#f38ba8"
+spacing          = 4

@@ -166,12 +166,12 @@ BarWidget {
         OpticalGlyph {
           required property string modelData
           width: button.width
-          height: modelData === "—" ? Style.bar.iconSlot * 0.5 : Style.bar.iconSlot
+          height: modelData === "—" ? Style.bar.iconSlot * 0.35 : Style.bar.iconSlot
           text: modelData
           fontFamily: button.fontFamily
           fontSize: modelData.length > 3
             ? button.fontSize * 0.9
-            : (modelData === "—" ? button.fontSize * 0.8 : button.fontSize)
+            : (modelData === "—" ? button.fontSize * 0.7 : button.fontSize)
           color: button.foreground
         }
       }

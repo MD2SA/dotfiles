@@ -1,6 +1,6 @@
 mode = "dark"
 
-accent = "#89b4fa"
+accent = "#e0dcd0"
 selection = "#252628"
 muted = "#3a3b3e"
 
@@ -19,7 +19,7 @@ yellow = "#f9e2af"
 orange = "#f6b6ab"
 green = "#a6e3a1"
 cyan = "#94e2d5"
-blue = "#89b4fa"
+blue = "#e0dcd0"
 magenta = "#f5c2e7"
 brown = "#7b5b55"
 
@@ -27,5 +27,5 @@ bright_red = "#f38ba8"
 bright_yellow = "#f9e2af"
 bright_green = "#a6e3a1"
 bright_cyan = "#94e2d5"
-bright_blue = "#89b4fa"
+bright_blue = "#e0dcd0"
 bright_magenta = "#f5c2e7"
