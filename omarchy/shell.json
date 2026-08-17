@@ -40,7 +40,7 @@
           "id": "omarchy.agents"
         },
         {
-          "id": "omarchy.bluetooth"
+          "id": "omarchy.power"
         },
         {
           "id": "omarchy.network"
@@ -49,20 +49,30 @@
           "id": "omarchy.audio"
         },
         {
-          "id": "omarchy.monitor"
+          "id": "omarchy.bluetooth"
         },
         {
-          "id": "omarchy.power"
+          "id": "omarchy.monitor"
         }
       ]
     },
     "position": "right",
-    "transparent": false
+    "transparent": true
   },
   "idle": {
     "lock": 300,
     "screensaver": 150
   },
-  "plugins": [],
-  "version": 1
+  "plugins": [
+    {
+      "id": "manas.notifications"
+    }
+  ],
+  "version": 1,
+  "disabledPlugins": [
+    "omarchy.notifications"
+  ],
+  "cloneSourceRestores": [
+    "manas.notifications"
+  ]
 }

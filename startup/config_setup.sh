@@ -40,6 +40,19 @@ for file in "$DOTDIR"/*; do
         target="$HOME/.local/bin"
     elif [[ "$name" == .bash* ]]; then
         target="$HOME/$name"
+    elif [[ "$name" == "themes" ]]; then
+        # Handle themes directory specially
+        # Create symlinks for each theme in ~/.config/omarchy/themes/
+        mkdir -p "$HOME/.config/omarchy/themes"
+        for theme_dir in "$file"/*; do
+            theme_name="$(basename "$theme_dir")"
+            theme_target="$HOME/.config/omarchy/themes/$theme_name"
+            if [ -L "$theme_target" ] || [ -d "$theme_target" ]; then
+                rm -rf "$theme_target"
+            fi
+            ln -sf "$theme_dir" "$theme_target"
+        done
+        continue
     else
         target="$HOME/.config/$name"
     fi
