@@ -1,0 +1,3 @@
+#!/bin/bash
+
+gp-saml-gui -S --gateway --clientos=Windows vpn.iscte-iul.pt
