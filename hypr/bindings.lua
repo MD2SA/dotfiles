@@ -14,19 +14,11 @@
 hl.unbind("SUPER + K")
 
 -- Unbind default SUPER+H/L/K/J focus (replaced with vim-style below)
-hl.unbind("SUPER + LEFT")
-hl.unbind("SUPER + RIGHT")
-hl.unbind("SUPER + UP")
-hl.unbind("SUPER + DOWN")
 hl.unbind("SUPER + H")
 hl.unbind("SUPER + J")
 hl.unbind("SUPER + L")
 
 -- Unbind default SUPER+SHIFT+H/L/K/J swap (replaced with vim-style below)
-hl.unbind("SUPER + SHIFT + LEFT")
-hl.unbind("SUPER + SHIFT + RIGHT")
-hl.unbind("SUPER + SHIFT + UP")
-hl.unbind("SUPER + SHIFT + DOWN")
 hl.unbind("SUPER + SHIFT + H")
 hl.unbind("SUPER + SHIFT + J")
 hl.unbind("SUPER + SHIFT + K")
@@ -50,6 +42,7 @@ hl.unbind("SUPER + CTRL + SHIFT + code:21")
 hl.unbind("SUPER + SHIFT + D")
 hl.unbind("SUPER + SHIFT + E")
 hl.unbind("SUPER + SHIFT + W")
+hl.unbind("SUPER + SHIFT + S")
 
 -- ============================================================
 -- Application bindings
@@ -57,13 +50,14 @@ hl.unbind("SUPER + SHIFT + W")
 
 o.bind("SUPER + ALT + RETURN", "Tmux", "uwsm-app -- xdg-terminal-exec --dir=\"$(omarchy-cmd-terminal-cwd)\" tmux new")
 o.bind("SUPER + SHIFT + F", "File manager", "uwsm-app -- nautilus --new-window")
-o.bind("SUPER + ALT + SHIFT + F", "File manager (cwd)", "uwsm-app -- nautilus --new-window \"$(omarchy-cmd-terminal-cwd)\"")
-o.bind("SUPER + SHIFT + O", "Obsidian", { launch = "obsidian", focus = "^obsidian$" })
+o.bind("SUPER + ALT + SHIFT + F", "File manager (cwd)",
+    "uwsm-app -- nautilus --new-window \"$(omarchy-cmd-terminal-cwd)\"")
+o.bind("SUPER + SHIFT + S", "Screenshot", "omarchy-capture-screenshot")
 
 -- Web apps
-o.bind("SUPER + SHIFT + W", "WhatsApp", { webapp = "https://web.whatsapp.com/" })
-o.bind("SUPER + SHIFT + D", "Discord", { webapp = "https://discord.com/channels/@me" })
-o.bind("SUPER + SHIFT + E", "Excalidraw", { webapp = "https://excalidraw.com/" })
+o.bind("SUPER + SHIFT + W", "WhatsApp", "omarchy-launch-webapp https://web.whatsapp.com")
+o.bind("SUPER + SHIFT + D", "Discord", "omarchy-launch-webapp https://discord.com/channels/@me")
+o.bind("SUPER + SHIFT + E", "Excalidraw", "omarchy-launch-webapp https://excalidraw.com")
 
 -- ============================================================
 -- Window resize (SUPER + minus/plus)
