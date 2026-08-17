@@ -1,22 +1,16 @@
 {
   "bar": {
-    "centerAnchor": "omarchy.clock",
+    "centerAnchor": "manas.clock",
     "layout": {
       "center": [
         {
           "id": "omarchy.indicators"
         },
         {
-          "id": "omarchy.keyboard-layout"
-        },
-        {
-          "id": "omarchy.weather"
-        },
-        {
           "id": "omarchy.system-update"
         },
         {
-          "id": "omarchy.clock",
+          "id": "manas.clock",
           "format": "dddd HH:mm",
           "formatAlt": "d MMMM 'W'ww yyyy",
           "verticalFormat": "HH\n—\nmm",
@@ -29,15 +23,12 @@
           "id": "omarchy.menu"
         },
         {
-          "id": "omarchy.workspaces"
+          "id": "manas.workspaces"
         }
       ],
       "right": [
         {
           "id": "omarchy.tray"
-        },
-        {
-          "id": "omarchy.agents"
         },
         {
           "id": "omarchy.power"
@@ -50,9 +41,6 @@
         },
         {
           "id": "omarchy.bluetooth"
-        },
-        {
-          "id": "omarchy.monitor"
         }
       ]
     },
