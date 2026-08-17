@@ -10,12 +10,7 @@
           "id": "omarchy.system-update"
         },
         {
-          "id": "manas.clock",
-          "format": "dddd HH:mm",
-          "formatAlt": "d MMMM 'W'ww yyyy",
-          "verticalFormat": "HH\n—\nmm",
-          "birthYear": 2005,
-          "lifeExpectancy": 90
+          "id": "omarchy.keyboard-layout"
         }
       ],
       "left": [
@@ -29,6 +24,14 @@
       "right": [
         {
           "id": "omarchy.tray"
+        },
+        {
+          "id": "manas.clock",
+          "format": "dddd HH:mm",
+          "formatAlt": "d MMMM 'W'ww yyyy",
+          "verticalFormat": "HH\nmm",
+          "birthYear": 2005,
+          "lifeExpectancy": 90
         },
         {
           "id": "omarchy.power"

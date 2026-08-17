@@ -17,7 +17,7 @@ BarWidget {
   property date displayDate: clock.date
 
   readonly property string configuredFormat: vertical
-    ? setting("verticalFormat", "HH\n—\nmm")
+    ? setting("verticalFormat", "HH\nmm")
     : setting("format", "dddd HH:mm")
   readonly property string configuredAltFormat: vertical
     ? setting("verticalFormatAlt", "dd\nMMM\n'W'ww\n''yy")
@@ -146,9 +146,9 @@ BarWidget {
     text: root.vertical ? "" : root.displayText
     labelVisible: !root.vertical
     hasVisualContent: root.vertical ? root.verticalLines.length > 0 : text !== ""
-    fixedHeight: root.vertical ? root.verticalLines.length * Style.bar.iconSlot - (root.verticalLines.length > 2 ? Style.space(6) : 0) : -1
+    fixedHeight: root.vertical ? root.verticalLines.length * Style.bar.iconSlot * 0.7 + Style.space(13) : -1
     horizontalMargin: 8.75
-    verticalPadding: 6
+    verticalPadding: 0
 
     onPressed: function(b) {
       if (b === Qt.RightButton) root.cycleFormat()
@@ -159,6 +159,7 @@ BarWidget {
     Column {
       visible: root.vertical
       anchors.fill: parent
+      spacing: 0
 
       Repeater {
         model: root.verticalLines
@@ -166,15 +167,26 @@ BarWidget {
         OpticalGlyph {
           required property string modelData
           width: button.width
-          height: modelData === "—" ? Style.bar.iconSlot * 0.35 : Style.bar.iconSlot
+          height: Style.bar.iconSlot * 0.7
           text: modelData
           fontFamily: button.fontFamily
           fontSize: modelData.length > 3
             ? button.fontSize * 0.9
-            : (modelData === "—" ? button.fontSize * 0.7 : button.fontSize)
+            : button.fontSize
           color: button.foreground
         }
       }
+
+      Item { width: 1; height: Style.space(6) }
+
+      Rectangle {
+        width: button.width * 0.6
+        height: 1
+        color: Util.alpha(button.foreground, 0.35)
+        anchors.horizontalCenter: parent.horizontalCenter
+      }
+
+      Item { width: 1; height: Style.space(6) }
     }
   }
 }
