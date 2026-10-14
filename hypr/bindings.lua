@@ -53,6 +53,10 @@ o.bind("SUPER + ALT + RETURN", "Tmux", "uwsm-app -- xdg-terminal-exec --dir=\"$(
 o.bind("SUPER + SHIFT + S", "Screenshot", "omarchy-capture-screenshot")
 o.bind("SUPER + SHIFT + C", "Calendar", "omarchy-shell shell toggle omarchy.clock")
 
+-- Notifications
+o.bind("SUPER + N", "Dismiss notification", "qs ipc --path /usr/share/omarchy/shell call notifications dismissOne")
+o.bind("SUPER + SHIFT + N", "Dismiss all notifications", "qs ipc --path /usr/share/omarchy/shell call notifications dismissAll")
+
 -- Web apps
 o.bind("SUPER + SHIFT + W", "WhatsApp", "omarchy-launch-webapp https://web.whatsapp.com")
 o.bind("SUPER + SHIFT + D", "Discord", "omarchy-launch-webapp https://discord.com/channels/@me")

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+sudo plymouth-set-default-theme manas -R

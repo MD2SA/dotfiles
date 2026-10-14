@@ -7,6 +7,9 @@
           "id": "omarchy.indicators"
         },
         {
+          "id": "manas.lid-keep-awake"
+        },
+        {
           "id": "omarchy.system-update"
         },
         {
@@ -27,11 +30,11 @@
         },
         {
           "id": "manas.clock",
+          "birthYear": 2005,
           "format": "dddd HH:mm",
           "formatAlt": "d MMMM 'W'ww yyyy",
-          "verticalFormat": "HH\nmm",
-          "birthYear": 2005,
-          "lifeExpectancy": 90
+          "lifeExpectancy": 90,
+          "verticalFormat": "HH\nmm"
         },
         {
           "id": "omarchy.power"
@@ -48,7 +51,7 @@
       ]
     },
     "position": "right",
-    "transparent": true
+    "transparent": false
   },
   "idle": {
     "lock": 300,

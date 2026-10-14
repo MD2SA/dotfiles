@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Re-aplica o splash Plymouth 'manas' após cada atualização do Omarchy.
+#
+# O Omarchy assa o tema Plymouth ativo no initramfs (UKI) no momento em que
+# reconstrói as imagens. Se um update repõe o tema para 'omarchy' e os UKIs
+# são reconstruídos nesse estado, o arranque mostra o splash errado até que
+# os initramfs sejam refeitos. Este hook volta a selecionar 'manas' e só
+# reconstrói os UKIs quando o config é mais recente do que eles.
+
+set -e
+
+theme=manas
+conf=/etc/plymouth/plymouthd.conf
+
+if [[ $(plymouth-set-default-theme) != $theme ]]; then
+  echo "post-update: a repor o tema Plymouth '$theme'"
+  sudo plymouth-set-default-theme "$theme"
+fi
+
+newest_uki=$(ls -t /boot/EFI/Linux/omarchy_linux*.efi 2>/dev/null | head -1) || true
+
+if [[ -n $newest_uki && $conf -nt $newest_uki ]]; then
+  echo "post-update: initramfs desatualizado face ao Plymouth, a reconstruir"
+  sudo limine-mkinitcpio
+fi

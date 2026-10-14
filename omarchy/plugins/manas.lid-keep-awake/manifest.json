@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "manas.lid-keep-awake",
+  "name": "Lid Keep Awake",
+  "version": "1.0.0",
+  "author": "manas",
+  "description": "Coffee-cup toggle that keeps herdr and opencode running when the lid is closed",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Lid Keep Awake",
+    "description": "Toggle the lid-keep-awake systemd user service",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

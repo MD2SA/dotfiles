@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# oc - opencode partilhado: servidor on-demand + attach no diretório atual.
+#
+#   oc            -> garante o servidor e faz attach em $PWD
+#   oc <args...>  -> idem, passando args extra ao `opencode attach`
+#   oc start      -> só arranca o servidor
+#   oc off        -> para o servidor
+#   oc restart    -> reinicia o servidor
+#   oc status     -> ON/off (usado no tab bar do herdr)
+#   oc log [n]    -> últimas n linhas do log (default 40)
+set -uo pipefail
+
+PORT="${OPENCODE_PORT:-4096}"
+URL="http://127.0.0.1:${PORT}"
+RUNDIR="${XDG_RUNTIME_DIR:-/tmp}/opencode-shared"
+PIDFILE="$RUNDIR/server.pid"
+LOG="$RUNDIR/server.log"
+LOCK="$RUNDIR/server.lock"
+mkdir -p "$RUNDIR"
+
+server_up() {
+    (exec 3<>"/dev/tcp/127.0.0.1/${PORT}") 2>/dev/null
+}
+
+start_server() {
+    server_up && return 0
+    if command -v flock >/dev/null 2>&1; then
+        exec 9>"$LOCK"
+        flock 9
+    fi
+    if server_up; then return 0; fi
+    setsid nohup opencode serve --port "$PORT" >"$LOG" 2>&1 &
+    echo $! >"$PIDFILE"
+    local i
+    for i in $(seq 1 100); do
+        server_up && return 0
+        sleep 0.15
+    done
+    printf 'oc: o servidor não arrancou (ver: oc log)\n' >&2
+    return 1
+}
+
+stop_server() {
+    local pid=""
+    if [[ -f "$PIDFILE" ]]; then
+        pid="$(cat "$PIDFILE" 2>/dev/null || true)"
+        [[ -n "$pid" ]] && kill "$pid" 2>/dev/null
+        rm -f "$PIDFILE"
+    fi
+    pkill -f "opencode serve --port ${PORT}" 2>/dev/null
+    local i
+    for i in $(seq 1 40); do
+        server_up || return 0
+        sleep 0.1
+    done
+    pkill -9 -f "opencode serve --port ${PORT}" 2>/dev/null
+    return 0
+}
+
+case "${1:-}" in
+off | stop)
+    stop_server
+    printf 'opencode: servidor parado\n'
+    ;;
+start)
+    if start_server; then printf 'opencode: servidor ON (:%s)\n' "$PORT"; else exit 1; fi
+    ;;
+restart)
+    stop_server
+    sleep 0.3
+    if start_server; then printf 'opencode: servidor reiniciado (:%s)\n' "$PORT"; else exit 1; fi
+    ;;
+status)
+    if server_up; then printf 'opencode: ON\n'; else printf 'opencode: off\n'; fi
+    ;;
+log)
+    tail -n "${2:-40}" "$LOG"
+    ;;
+*)
+    if ! start_server; then exit 1; fi
+    exec opencode attach "$URL" --dir "$PWD" "$@"
+    ;;
+esac

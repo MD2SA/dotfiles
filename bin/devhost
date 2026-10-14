@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# devhost - faz manas.local resolver para o IP da LAN (avahi), sem tocar em /etc/hosts nem no hostname.
+#
+#   devhost         -> restringe avahi à interface da LAN e verifica a resolução
+#   devhost status  -> mostra o estado sem alterar nada
+#   devhost reset   -> restaura a configuração anterior do avahi
+
+set -uo pipefail
+
+CONF=/etc/avahi/avahi-daemon.conf
+BAK="$CONF.devhost-backup"
+
+detect() {
+    local r=() i
+    read -r -a r <<<"$(ip -4 route get 1.1.1.1 2>/dev/null)" || return 1
+    IFACE= LANIP=
+    for ((i = 0; i < ${#r[@]}; i++)); do
+        [[ ${r[$i]} == dev ]] && IFACE=${r[$((i + 1))]}
+        [[ ${r[$i]} == src ]] && LANIP=${r[$((i + 1))]}
+    done
+    [[ -n $IFACE && -n $LANIP ]]
+}
+
+verify() {
+    local name="$1"
+    if getent ahostsv4 "$name" 2>/dev/null | grep -q "^$LANIP[[:space:]]"; then
+        echo "devhost: OK - $name -> $LANIP"
+        return 0
+    fi
+    local r
+    r="$(getent ahostsv4 "$name" 2>/dev/null | grep -oP '^[0-9.]+' | sort -u | tr '\n' ' ')"
+    echo "devhost: FALHA - $name -> ${r:-sem resolução} (esperado $LANIP)"
+    return 1
+}
+
+command_apply() {
+    if ! detect; then
+        echo "devhost: erro - sem rota para a LAN (não consigo detetar a interface)" >&2
+        return 1
+    fi
+    local name="$HOSTNAME.local" tmp
+    tmp="$(mktemp)"
+    cp "$CONF" "$tmp"
+    if grep -q '^[[:space:]]*allow-interfaces=' "$tmp"; then
+        sed -E -i "s@^([[:space:]]*)allow-interfaces=.*@\1allow-interfaces=$IFACE@" "$tmp"
+    else
+        sed -i '\@^\[server\]@a allow-interfaces='"$IFACE" "$tmp"
+    fi
+    if ! cmp -s "$tmp" "$CONF"; then
+        sudo cp "$CONF" "$BAK"
+        sudo cp "$tmp" "$CONF"
+        sudo systemctl restart avahi-daemon
+    fi
+    rm -f "$tmp"
+    verify "$name"
+}
+
+command_status() {
+    local line
+    if detect; then
+        echo "devhost: LAN=$IFACE IPv4=$LANIP"
+    else
+        echo "devhost: sem rota para a LAN" >&2
+    fi
+    line="$(sed -n 's@^[[:space:]]*allow-interfaces=@@p' "$CONF" 2>/dev/null | head -n 1)"
+    echo "devhost: allow-interfaces=${line:-<todas, por omissão>}"
+    if detect; then
+        verify "$HOSTNAME.local"
+    else
+        echo "devhost: resolução: $(getent hosts "$HOSTNAME.local" 2>/dev/null || echo em falta)"
+    fi
+}
+
+command_reset() {
+    if [[ ! -f $BAK ]]; then
+        echo "devhost: não há configuração anterior para restaurar"
+        return 0
+    fi
+    if cmp -s "$BAK" "$CONF"; then
+        echo "devhost: configuração já restaurada"
+        return 0
+    fi
+    sudo cp "$BAK" "$CONF"
+    sudo systemctl restart avahi-daemon
+    echo "devhost: configuração anterior restaurada"
+    if detect; then
+        verify "$HOSTNAME.local"
+    else
+        return 0
+    fi
+}
+
+case "${1:-}" in
+apply | "") command_apply ;;
+status) command_status ;;
+reset) command_reset ;;
+*)
+    echo "uso: devhost [status|reset]" >&2
+    exit 1
+    ;;
+esac
