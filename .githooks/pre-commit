@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Pre-commit guard for a PUBLIC repo: blocks staged secrets.
+# Self-contained (no external deps). Uses gitleaks too, if installed.
+# Enable with:  git config core.hooksPath .githooks
+
+set -uo pipefail
+
+# High-confidence secret patterns (content scan).
+CONTENT_PATTERNS='-----BEGIN [A-Z ]*PRIVATE KEY-----|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{60,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35}|sk-[A-Za-z0-9]{32,}'
+
+# Filenames that must never be committed.
+NAME_PATTERNS='(^|/)(rclone\.conf|token_cache\.json|credentials\.enc|\.encryption_key|client_secret\.json|\.netrc|\.git-credentials|id_ed25519.*|id_rsa.*|.*\.pem|.*\.key)$'
+
+found=0
+
+# 1) Filename check
+while IFS= read -r -d '' f; do
+    if [[ "$f" =~ $NAME_PATTERNS ]]; then
+        echo "blocked (secret filename): $f" >&2
+        found=1
+    fi
+done < <(git diff --cached --name-only -z --diff-filter=ACMR)
+
+# 2) Content check on added/modified files
+while IFS= read -r -d '' f; do
+    git cat-file -e ":$f" 2>/dev/null || continue
+    if git show ":$f" 2>/dev/null | grep -aInE -e "$CONTENT_PATTERNS" >/dev/null 2>&1; then
+        echo "blocked (secret content) in $f:" >&2
+        git show ":$f" 2>/dev/null | grep -aInE -e "$CONTENT_PATTERNS" | head -5 >&2
+        found=1
+    fi
+done < <(git diff --cached --name-only -z --diff-filter=ACMR)
+
+# 3) gitleaks, if available (extra coverage)
+if command -v gitleaks >/dev/null 2>&1; then
+    if gitleaks git --staged --redact --no-banner 2>/dev/null; then
+        :
+    elif gitleaks protect --staged --redact --no-banner 2>/dev/null; then
+        :
+    else
+        echo "gitleaks flagged staged changes" >&2
+        found=1
+    fi
+fi
+
+if [[ "$found" -ne 0 ]]; then
+    echo >&2
+    echo "Commit blocked: potential secret detected. Override with: git commit --no-verify" >&2
+    exit 1
+fi

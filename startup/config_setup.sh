@@ -1,80 +1,109 @@
 #!/usr/bin/env bash
+# Symlink dotfiles into place. Idempotent and non-destructive:
+#   - never deletes real content without backing it up first
+#   - skips links that already point to the right place
+#   - supports DRY_RUN=1 to preview
+#
+# Run from anywhere; it resolves its own location.
 
-set -e
-shopt -s dotglob nullglob
+set -euo pipefail
 
+DOTDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BACKUP_DIR="$HOME/.config/dotfiles.local/backups/$(date +%Y%m%d_%H%M%S)"
+DRY_RUN="${DRY_RUN:-0}"
 
-mkdir -p "$HOME/.config"
-DOTDIR="$HOME/.config/dotfiles"
-
-IGNORE_DIRS=(
-    ".git"
-    ".gitignore"
-    "startup"
-    "plymouth-themes"
+# Top-level repo entries that must NOT be linked into ~/.config.
+IGNORE=(
+    .git .gitignore .githooks
+    README.md AGENTS.md
+    startup plymouth-themes backup
+    .nobackup dotfiles.local
 )
 
-dotfiles=("$DOTDIR"/*)
-if [ ! -d "$DOTDIR/.git" ]; then
-    # if ssh fails try https
-    git clone "git@github.com/MD2SA/dotfiles" "$DOTDIR" || \
-    git clone "https://github.com/MD2SA/dotfiles" "$DOTDIR"
-else
-    git -C "$DOTDIR" pull --rebase
-fi
+is_ignored() {
+    local name="$1" i
+    for i in "${IGNORE[@]}"; do [[ "$name" == "$i" ]] && return 0; done
+    return 1
+}
 
-for file in "$DOTDIR"/*; do
-    name="$(basename "$file")"
+link() {
+    local src="$1" dst="$2"
 
-    # skip ignore dirs/files
-    skip=false
-    for ignored in "${IGNORE_DIRS[@]}"; do
-        if [[ "$name" == "$ignored" ]]; then
-            skip=true
-            break
-        fi
+    if [[ -L "$dst" && "$(readlink -f "$dst")" == "$(readlink -f "$src")" ]]; then
+        return 0
+    fi
+
+    if [[ "$DRY_RUN" == 1 ]]; then
+        echo "  would link: $src -> $dst"
+        return 0
+    fi
+
+    if [[ -e "$dst" || -L "$dst" ]]; then
+        mkdir -p "$BACKUP_DIR"
+        mv "$dst" "$BACKUP_DIR/$(basename "$dst").$(date +%s)"
+        echo "  backed up: $dst -> $BACKUP_DIR/"
+    fi
+
+    mkdir -p "$(dirname "$dst")"
+    ln -sfn "$src" "$dst"
+    echo "  linked: $src -> $dst"
+}
+
+link_themes() {
+    local theme_dir base
+    mkdir -p "$HOME/.config/omarchy/themes"
+    for theme_dir in "$DOTDIR"/themes/*; do
+        [[ -e "$theme_dir" ]] || continue
+        base="$(basename "$theme_dir")"
+        link "$theme_dir" "$HOME/.config/omarchy/themes/$base"
     done
-    $skip && continue
+}
 
-    if [[ "$name" == "bin" ]]; then
-        target="$HOME/.local/bin"
-    elif [[ "$name" == .bash* ]]; then
-        target="$HOME/$name"
-    elif [[ "$name" == "themes" ]]; then
-        # Handle themes directory specially
-        # Create symlinks for each theme in ~/.config/omarchy/themes/
-        mkdir -p "$HOME/.config/omarchy/themes"
-        for theme_dir in "$file"/*; do
-            theme_name="$(basename "$theme_dir")"
-            theme_target="$HOME/.config/omarchy/themes/$theme_name"
-            if [ -L "$theme_target" ] || [ -d "$theme_target" ]; then
-                rm -rf "$theme_target"
+echo "==> Linking configs (DOTDIR=$DOTDIR)"
+shopt -s dotglob nullglob
+
+for entry in "$DOTDIR"/*; do
+    name="$(basename "$entry")"
+    is_ignored "$name" && continue
+
+    case "$name" in
+        bin)
+            link "$entry" "$HOME/.local/bin"
+            # remove a stale ~/.config/bin symlink from older setups
+            if [[ -L "$HOME/.config/bin" ]]; then
+                if [[ "$DRY_RUN" == 1 ]]; then
+                    echo "  would remove stale: ~/.config/bin"
+                else
+                    rm -f "$HOME/.config/bin"
+                    echo "  removed stale: ~/.config/bin"
+                fi
             fi
-            ln -sf "$theme_dir" "$theme_target"
-        done
-        continue
-    else
-        target="$HOME/.config/$name"
-    fi
-
-    if [ -L "$target" ] || [ -d "$target" ]; then
-        rm -rf "$target"
-    fi
-
-    ln -sf "$file" "$target"
+            ;;
+        themes)
+            link_themes
+            ;;
+        uwsm-default)
+            link "$entry" "$HOME/.config/uwsm/default"
+            ;;
+        .bash*)
+            link "$entry" "$HOME/$name"
+            ;;
+        *)
+            link "$entry" "$HOME/.config/$name"
+            ;;
+    esac
 done
-
-
-NVIMDIR="$HOME/.config/nvim"
-if [ ! -d "$NVIMDIR" ]; then
-    git clone "https://github.com/MD2SA/nvim" "$NVIMDIR"
-else
-    git -C "$NVIMDIR" pull
-fi
 
 shopt -u dotglob nullglob
 
-# NEXT STEPS
-#
-# DELETE CRAP and config crap
-# MAKE a manas restart script that calls all omarchy-restart-scripts
+# --- External repos -----------------------------------------------------------
+NVIMDIR="$HOME/.config/nvim"
+if [[ ! -d "$NVIMDIR/.git" ]]; then
+    echo "==> Cloning nvim config"
+    git clone "https://github.com/MD2SA/nvim" "$NVIMDIR"
+else
+    echo "==> Updating nvim config"
+    git -C "$NVIMDIR" pull --ff-only || true
+fi
+
+echo "==> Config linking done."

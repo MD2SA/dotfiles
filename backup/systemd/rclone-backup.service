@@ -1,0 +1,8 @@
+[Unit]
+Description=Back up important folders to Google Drive (rclone)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/dotfiles/backup/rclone-backup.sh
