@@ -1,7 +1,6 @@
 .bash_history
 mimeapps.list
 omarchy/current/
-btop/
 
 # --- Secrets: never commit these ---
 rclone.conf
@@ -30,3 +29,4 @@ dotfiles.local/
 omarchy/screen-time/history.json
 omarchy/calendar-sync.json
 omarchy/themed/
+btop/themes/
