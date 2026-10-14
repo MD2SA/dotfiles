@@ -8,11 +8,17 @@ set -euo pipefail
 SSH_DIR="$HOME/.ssh"
 CONFIG_FILE="$SSH_DIR/config"
 
-PROFILES=(
-    # Format: "name:email"
-    "personal:user@example.com"
-    "iscte:user@example.com"
-)
+# Profiles are NOT stored in this (public) repo. Keep yours in a local,
+# untracked file, one "name:email" per line:
+#   ~/.config/dotfiles.local/ssh-profiles
+PROFILES_FILE="${DOTFILES_SSH_PROFILES:-$HOME/.config/dotfiles.local/ssh-profiles}"
+PROFILES=()
+if [[ -f "$PROFILES_FILE" ]]; then
+    mapfile -t PROFILES < <(grep -vE '^[[:space:]]*(#|$)' "$PROFILES_FILE")
+else
+    echo "warning: no profiles file at $PROFILES_FILE; using placeholder." >&2
+    PROFILES=("personal:user@example.com")
+fi
 
 # -- Setup ---------------------------------------------------------------------
 mkdir -p "$SSH_DIR"

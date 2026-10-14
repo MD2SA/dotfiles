@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+# fista - acesso multiplexado ao servidor remoto fista (host configurável via FISTA_HOST).
+#
+# Reutiliza UMA ligação SSH (ControlMaster) em vez de abrir uma nova por comando,
+# e mantém uma sessão tmux dedicada para trabalho longo/interativo.
+#
+#   fista up             garante a ligação mestre aberta
+#   fista down           fecha a ligação mestre
+#   fista status         estado do master + sessões tmux no servidor
+#   fista run '<cmd>'    corre comando no servidor (multiplexado, output limpo)
+#   fista tmux  '<cmd>'  escreve comando na sessão tmux oc (persistente)
+#   fista capture [n]    últimas n linhas da sessão oc (default 40)
+#   fista attach         attach interativo à sessão oc
+#   fista shell          shell interativa no servidor
+set -uo pipefail
+
+HOST="${FISTA_HOST:-fista@fista}"
+SOCK="${FISTA_SOCK:-/run/user/1000/ssh-fista.sock}"
+SESSION="${FISTA_TMUX:-oc}"
+PERSIST="${FISTA_PERSIST:-8h}"
+
+ssh_opts=(-o ControlMaster=auto -o "ControlPath=$SOCK" -o "ControlPersist=$PERSIST")
+
+usage() {
+    cat >&2 <<'EOF'
+fista - acesso multiplexado ao servidor fista (host configurável via FISTA_HOST).
+
+  fista up             garante a ligação mestre aberta
+  fista down           fecha a ligação mestre
+  fista status         estado do master + sessões tmux no servidor
+  fista run '<cmd>'    corre comando no servidor (multiplexado, output limpo)
+  fista tmux  '<cmd>'  escreve comando na sessão tmux oc (persistente)
+  fista capture [n]    últimas n linhas da sessão oc (default 40)
+  fista attach         attach interativo à sessão oc
+  fista shell          shell interativa no servidor
+EOF
+}
+
+rssh() { ssh "${ssh_opts[@]}" "$HOST" "$@"; }
+
+master_alive() { ssh "${ssh_opts[@]}" -O check "$HOST" >/dev/null 2>&1; }
+
+master_up() {
+    master_alive && return 0
+    ssh "${ssh_opts[@]}" -fN "$HOST" && master_alive
+}
+
+session_up() {
+    master_up || return 1
+    rssh "tmux has-session -t '$SESSION'" 2>/dev/null && return 0
+    rssh "tmux new-session -d -s '$SESSION' -x 240 -y 50"
+}
+
+command_run() {
+    [[ $# -gt 0 ]] || { printf "fista: uso: fista run '<cmd>'\n" >&2; return 2; }
+    master_up || { printf 'fista: não consegui abrir a ligação\n' >&2; return 1; }
+    rssh "$@"
+}
+
+command_tmux() {
+    [[ $# -gt 0 ]] || { printf "fista: uso: fista tmux '<cmd>'\n" >&2; return 2; }
+    session_up || return 1
+    printf '%s' "$1" | ssh "${ssh_opts[@]}" "$HOST" \
+        "tmux load-buffer -b fista-cli - && tmux paste-buffer -b fista-cli -t '$SESSION' && tmux send-keys -t '$SESSION' Enter"
+}
+
+command_capture() {
+    session_up || return 1
+    rssh "tmux capture-pane -t '$SESSION' -p -S -${1:-40}" \
+        | sed -r 's/\x1b\[[0-9;?]*[a-zA-Z]//g' \
+        | awk 'BEGIN{bl=0} /^[[:space:]]*$/{bl++; next} {while(bl>0){print "";bl--} print}'
+}
+
+command_attach() {
+    session_up || return 1
+    exec ssh "${ssh_opts[@]}" -t "$HOST" "tmux attach -t '$SESSION'"
+}
+
+command_shell() {
+    master_up || return 1
+    exec ssh "${ssh_opts[@]}" -t "$HOST"
+}
+
+command_status() {
+    if master_alive; then
+        printf 'fista: master ON  (%s)\n' "$SOCK"
+    else
+        printf 'fista: master off (%s)\n' "$SOCK"
+    fi
+    master_up || return 1
+    rssh "printf 'fista: host=%s\n' \"\$(hostname)\"; tmux ls 2>/dev/null || printf 'fista: sem sessões tmux\n'"
+}
+
+case "${1:-}" in
+up)
+    if master_up; then printf 'fista: master ON (%s)\n' "$SOCK"; else printf 'fista: falha a abrir o master\n' >&2; exit 1; fi
+    ;;
+down)
+    if ssh "${ssh_opts[@]}" -O exit "$HOST" 2>/dev/null; then printf 'fista: master fechado\n'; else printf 'fista: não havia master aberto\n'; fi
+    ;;
+status)
+    command_status
+    ;;
+run)
+    shift; command_run "$@"
+    ;;
+tmux)
+    shift; command_tmux "$@"
+    ;;
+capture)
+    shift; command_capture "$@"
+    ;;
+attach)
+    command_attach
+    ;;
+shell | ssh)
+    command_shell
+    ;;
+"" | -h | --help | help)
+    usage
+    ;;
+*)
+    printf 'fista: comando desconhecido: %s\n' "$1" >&2
+    usage
+    exit 1
+    ;;
+esac

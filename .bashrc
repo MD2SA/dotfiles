@@ -46,9 +46,9 @@ cpp() {
 }
 
 ## For pisid
-alias mazeup="docker compose -f $HOME/Documents/iscte/pisid/mazerun/docker-compose.yml up"
-alias mazed="docker compose -f $HOME/Documents/iscte/pisid/mazerun/docker-compose.yml down"
-alias mazerun="wine $HOME/Documents/iscte/pisid/mazerun/server/mazerun.exe 25 --flagMessage 1 --delay 2 --broker broker.hivemq.com --portbroker 1883"
+alias mazeup="docker compose -f \"$HOME/Documents/iscte/pisid/mazerun/docker-compose.yml\" up"
+alias mazed="docker compose -f \"$HOME/Documents/iscte/pisid/mazerun/docker-compose.yml\" down"
+alias mazerun="wine \"$HOME/Documents/iscte/pisid/mazerun/server/mazerun.exe\" 25 --flagMessage 1 --delay 2 --broker broker.hivemq.com --portbroker 1883"
 ##
 
 # pnpm

@@ -2,3 +2,31 @@
 mimeapps.list
 omarchy/current/
 btop/
+
+# --- Secrets: never commit these ---
+rclone.conf
+**/rclone.conf
+*.token
+*token_cache.json
+credentials.enc
+.encryption_key
+client_secret.json
+.env
+*.env
+.netrc
+.git-credentials
+*.pem
+*.key
+id_*
+*secret*
+*credential*
+bin/git-filter-repo
+
+# --- Local overrides / machine-specific ---
+dotfiles.local/
+**/.nobackup
+
+# --- Runtime state ---
+omarchy/screen-time/history.json
+omarchy/calendar-sync.json
+omarchy/themed/
