@@ -34,6 +34,7 @@ bash ~/.config/dotfiles/startup/cleanup.sh
 | `bin/` | Personal executables, linked to `~/.local/bin` |
 | `hypr/` | Hyprland behavior/layout config |
 | `omarchy/` | Omarchy shell, plugins, hooks, extensions |
+| `opencode/` | OpenCode config + local English speech-to-text (linked file by file) |
 | `themes/manas/` | Theme (colors, foot, hyprlock, shell, wallpapers) |
 | `foot/`, `btop/`, `tmux/`, `tmux-sessionizer/` | App configs |
 | `.githooks/` | Pre-commit secret guard |
@@ -44,6 +45,7 @@ bash ~/.config/dotfiles/startup/cleanup.sh
 with these special cases:
 
 - `bin` -> `~/.local/bin`
+- `opencode/*` -> individual files under `~/.config/opencode` (runtime state stays untracked)
 - `themes/*` -> `~/.config/omarchy/themes/*`
 - `uwsm-default` -> `~/.config/uwsm/default`
 - `.bash*` -> `~$HOME/.bash*`

@@ -82,6 +82,28 @@ for entry in "$DOTDIR"/*; do
         themes)
             link_themes
             ;;
+        opencode)
+            # Track config only: service.json and node_modules stay untracked.
+            link "$entry/cli.json" "$HOME/.config/opencode/cli.json"
+            link "$entry/opencode.json" "$HOME/.config/opencode/opencode.json"
+            voice_plugin="$HOME/.config/opencode/plugins/voice-dictation"
+            if [[ "$DRY_RUN" == 1 ]]; then
+                echo "  would link: $entry/plugins/voice-dictation/* -> $voice_plugin/"
+            else
+                # OpenCode does not follow a symlinked plugin directory; link the
+                # files individually inside a real directory.
+                [[ -L "$voice_plugin" ]] && rm -f "$voice_plugin"
+                mkdir -p "$voice_plugin"
+                for f in "$entry/plugins/voice-dictation"/*; do
+                    link "$f" "$voice_plugin/$(basename "$f")"
+                done
+            fi
+            if [[ "$DRY_RUN" == 1 ]]; then
+                echo "  would run: opencode/setup.sh"
+            else
+                bash "$entry/setup.sh"
+            fi
+            ;;
         uwsm-default)
             link "$entry" "$HOME/.config/uwsm/default"
             ;;
