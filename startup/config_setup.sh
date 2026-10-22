@@ -88,15 +88,14 @@ for entry in "$DOTDIR"/*; do
             link "$entry/opencode.json" "$HOME/.config/opencode/opencode.json"
             voice_plugin="$HOME/.config/opencode/plugins/voice-dictation"
             if [[ "$DRY_RUN" == 1 ]]; then
-                echo "  would link: $entry/plugins/voice-dictation/* -> $voice_plugin/"
+                echo "  would copy: $entry/plugins/voice-dictation/* -> $voice_plugin/"
             else
-                # OpenCode does not follow a symlinked plugin directory; link the
-                # files individually inside a real directory.
+                # OpenCode's plugin loader rejects symlinked plugin files, so the
+                # vendored plugin is copied instead of linked.
                 [[ -L "$voice_plugin" ]] && rm -f "$voice_plugin"
                 mkdir -p "$voice_plugin"
-                for f in "$entry/plugins/voice-dictation"/*; do
-                    link "$f" "$voice_plugin/$(basename "$f")"
-                done
+                find "$voice_plugin" -maxdepth 1 -type l -delete
+                cp -f "$entry/plugins/voice-dictation"/* "$voice_plugin"/
             fi
             if [[ "$DRY_RUN" == 1 ]]; then
                 echo "  would run: opencode/setup.sh"

@@ -39,8 +39,10 @@ language with `/dictate-language`.
 
 ## Fresh machine
 
-`startup/config_setup.sh` links the files above and runs `setup.sh`, which is
-idempotent (`DRY_RUN=1` to preview). It needs `sudo` for the pacman package.
+`startup/config_setup.sh` symlinks `cli.json` and `opencode.json`, copies the
+plugin into `~/.config/opencode/plugins/` (OpenCode's loader rejects symlinked
+plugin files), and runs `setup.sh`. The installer is idempotent (`DRY_RUN=1` to
+preview) and needs `sudo` for the pacman package.
 
 ## Revert
 
